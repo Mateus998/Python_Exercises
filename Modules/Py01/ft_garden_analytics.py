@@ -33,15 +33,19 @@ class Plant:
         self.height = height
         self.ages = age
         self.growth_rate = growth_rate
+        self.stats = Plant.Statistics()
 
     def grow(self):
         self.height += self.growth_rate
+        self.stats.increment_grow()
     
     def age(self):
         self.ages += 1
+        self.stats.increment_age()
 
     def show(self):
         print(f"{self.name.capitalize()}: {round(self.height, 1)}cm, {self.ages} days old")
+        self.stats.increment_show()
 
 class Flower(Plant):
     def __init__(self, name: str, height: float, age: int, growth_rate: float, color: str):
@@ -61,12 +65,43 @@ class Flower(Plant):
     def show(self):
         super().show()
         print(f"color: {self.color}")
-        self.Statistics.increment_show
+        self.stats.increment_show()
+
+class Seed(Flower):
+    def __init__(self, name: str, height: float, age: int, growth_rate: float, color: str, seeds: int):
+        super().__init__(name, height, age, growth_rate, color)
+        self.seeds = seeds
+    
+    @classmethod
+    def anonymous(cls):
+        return cls("Anonymous", 0,0, 0, "unknown", 0)
+    
+    def show(self):
+        super().show()
+        print(f"seeds: {self.seeds}")
+        self.stats.increment_show()
+    
 
 class Tree(Plant):
     def __init__(self, name: str, height: float, age: int, growth_rate: float, trunk_diameter: float):
         super().__init__(name, height, age, growth_rate)
         self.trunk_diameter = trunk_diameter
+
+    class TreeStatistics(Plant.Statistics):
+        def __init__(self):
+            super().__init__()
+            self.__shade_calls = 0
+
+        def increment_shade(self):
+            self.__shade_calls += 1
+
+        def display_stats(self):
+            super().display()
+            print("Produce shade calls:", self.__shade_calls)
+
+    @classmethod
+    def anonymous(cls):
+        return cls("Anonymous", 0, 0, 0, 0)
 
     def produce_shade(self):
         print(f"{self.name} produce a shade of {self.height}cm long and {self.trunk_diameter}cm wide")
@@ -74,10 +109,12 @@ class Tree(Plant):
     def grow(self):
         self.height *= self.growth_rate
         self.trunk_diameter *= self.growth_rate
+        self.stats.increment_grow()
 
     def show(self):
         super().show()
         print(f"trunk_diameter: {self.trunk_diameter}")
+        self.stats.increment_show()
 
 class Vegetable(Plant):
     def __init__(self, name: str, height: float, age: int, growth_rate: float, harvest_season: str, nutricional_value: int):
@@ -88,7 +125,53 @@ class Vegetable(Plant):
     def age(self):
         self.ages += 1
         self.nutritional_value *= 1.5
+        self.stats.increment_age()
 
     def show(self):
         super().show()
         print(f"harvet_season: {self.harvest_season}, nutricional_value: {self.nutritional_value}")
+        self.stats.increment_show()
+
+def display_stats(plant: Plant):
+    plant.stats.display()
+
+if __name__ == "__main__":
+    plant = Plant("Basic Plant", 50, 100,1.1)
+    flower = Flower("Rose", 20, 50, 1.2, "Red")
+    seed = Seed("Sunflower", 20, 80, 1.2, "Yellow", 25)
+    tree = Tree("Oak", 500, 10, 1.3, 20)
+
+    plant.grow()
+    plant.age()
+    plant.show()
+
+    flower.grow()
+    flower.bloom()
+    flower.show()
+
+    seed.grow()
+    seed.show()
+
+    tree.grow()
+    tree.age()
+    tree.produce_shade()
+    tree.produce_shade()
+    tree.show()
+
+    display_stats(plant)
+    display_stats(flower)
+    display_stats(seed)
+    display_stats(tree)
+
+    print(Plant.is_older_than_year(400))
+    print(Plant.is_older_than_year(200))
+
+    anonymous_plant = Plant.anonymous()
+    anonymous_flower = Flower.anonymous()
+    anonymous_seed = Seed.anonymous()
+    anonymous_tree = Tree.anonymous()
+
+    anonymous_plant.show()
+    anonymous_flower.show()
+    anonymous_seed.show()
+    anonymous_tree.show()
